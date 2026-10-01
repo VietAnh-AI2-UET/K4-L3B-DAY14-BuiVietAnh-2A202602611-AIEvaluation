@@ -30,11 +30,11 @@ critical.
 
 | Metric | Acceptable Low Score Scenario | Critical Low Score Scenario | Action Required |
 |---|---|---|---|
-| Faithfulness | | | |
-| Answer Relevance | | | |
-| Context Recall | | | |
-| Context Precision | | | |
-| Completeness | | | |
+| Faithfulness | Câu trả lời sáng tạo hoặc brainstorming, không yêu cầu mọi ý đều có trong context. | Tư vấn về giá, chính sách, bảo hành hoặc thông tin sản phẩm nhưng câu trả lời chứa thông tin không có căn cứ hay trái với context. | Kiểm tra hallucination, siết prompt chỉ dùng context, cải thiện nguồn dữ liệu và đặt ngưỡng chặn deployment. |
+| Answer Relevance | Người dùng hỏi mở hoặc trò chuyện, nên câu trả lời có thể cung cấp thêm thông tin hữu ích ngoài trọng tâm. | Câu trả lời không giải quyết ý định chính của khách hàng hoặc trả lời sang vấn đề khác. | Phân tích intent và các câu hỏi thất bại, sửa prompt/query rewriting, bổ sung test theo từng loại câu hỏi. |
+| Context Recall | Câu hỏi đơn giản chỉ cần một phần nhỏ tài liệu, hoặc câu trả lời đúng dù retriever không lấy đủ mọi đoạn liên quan. | Thiếu đoạn chứa điều kiện quan trọng khiến câu trả lời sai hoặc bỏ sót, như ngoại lệ đổi trả hay điều kiện bảo hành. | Cải thiện truy vấn, chunking và top-k; bổ sung tài liệu còn thiếu rồi đánh giá lại retriever. |
+| Context Precision | Cần lấy nhiều đoạn để tăng khả năng tìm đủ thông tin, và model vẫn chọn đúng phần liên quan. | Phần lớn context không liên quan làm model nhiễu, trả lời sai hoặc tăng đáng kể chi phí và độ trễ. | Tối ưu embedding/search, thêm metadata filter hoặc reranker, giảm các đoạn không liên quan. |
+| Completeness | Người dùng chỉ yêu cầu câu trả lời ngắn hoặc một thông tin cụ thể, không cần trình bày toàn bộ chi tiết liên quan. | Bỏ sót một phần bắt buộc của câu hỏi nhiều ý hoặc thiếu thông tin thiết yếu để khách hàng thực hiện bước tiếp theo. | Tách câu hỏi thành các yêu cầu nhỏ, dùng checklist trong prompt và thêm test cho câu hỏi nhiều ý. |
 
 ### Exercise 1.2 — Bias trong LLM-as-a-Judge
 
@@ -46,15 +46,21 @@ Ba bias thường gặp:
 
 **Câu 1: Thiết kế experiment phát hiện position bias với ít nhất hai conditions.**
 
-> *Câu trả lời:*
+> Dùng cùng hai câu trả lời A và B, nhưng đổi thứ tự:
+>
+> - Condition 1: A xuất hiện trước, B xuất hiện sau.
+>
+> - Condition 2: B xuất hiện trước, A xuất hiện sau.
+>
+> Nếu judge thường chọn câu trả lời đứng trước dù nội dung không đổi thì nghĩa là đang có dấu hiệu position bias
 
 **Câu 2: Làm thế nào giảm verbosity bias bằng rubric design?**
 
-> *Câu trả lời:*
+> Thiêt kế prompt Rubric để đánh giá theo Faithfulness, Relevant, Completness, Precision, kèm theo "ghi rõ rằng câu trả lời dài hơn không tự động được điểm cao hơn" (đại loại thế).
 
 **Câu 3: Tại sao cần calibrate LLM judge với human labels?**
 
-> *Câu trả lời:*
+> Vì AI thì không phải người, có thể AI thấy phù hợp nhưng người thì không thích thế.
 
 ### Exercise 1.3 — Evaluation trong CI/CD
 
@@ -62,13 +68,17 @@ Ba bias thường gặp:
 
 | Metric | Threshold | Lý do |
 |---|---:|---|
-| Faithfulness | | |
-| Answer Relevance | | |
-| Completeness | | |
+| Faithfulness | <0.8 | Sai hoặc bịa thông tin thì rủi ro cao (hơn hai metric dưới) |
+| Answer Relevance | <0.7 | Cần đảm bảo câu trả lời đúng trọng tâm vấn đề |
+| Completeness | <0.7 | Câu trả lời thì phải đủ ý |
 
 **Câu 2: Khi nào dùng offline evaluation, online evaluation và human review?**
 
-> *Câu trả lời:*
+> Offline eval khi chưa chắc version mới của model đã đáp ứng được tiêu chuẩn deploy
+>
+> Online eval khi cần monitoring hệ thống
+>
+> Human eval khi task cần nghiêm túc, chính xác cao
 
 ---
 
