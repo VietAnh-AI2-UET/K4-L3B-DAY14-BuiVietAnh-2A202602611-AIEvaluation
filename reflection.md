@@ -205,23 +205,25 @@ Với mỗi suggestion, nêu metric dự kiến thay đổi và cách đo lại.
 
 **Câu 1: Khi nào chạy `run_regression()` trong production workflow?**
 
-> *Câu trả lời:*
+> Khi code xong version mới để so sánh với baseline
 
 **Câu 2: Threshold drop 0.05 có phù hợp OrbitTech Customer Support không? Vì sao?**
 
-> *Câu trả lời:*
+> Ổn, vì 0.05 là đủ nhỏ, không quá lớn
 
 **Câu 3: Metric/failure nào phải block deployment, metric nào chỉ alert?**
 
-> *Câu trả lời:*
+> Chặn deployment nếu Faithfulness, Safety hoặc Privacy giảm
+
+> Chỉ cảnh báo đối với mức giảm nhỏ của Relevance, Completeness và Context Precision, miễn là vẫn trên threshold
 
 **Câu 4: Điền evaluation stages vào flow.**
 
 ```text
-Code/prompt/retrieval change → [________] → [________] → [________] → Deploy
+Code/prompt/retrieval change → Run benchmark → Compare with baseline → Apply quality gate → Deploy
 ```
 
-> *Giải thích:*
+> Sau khi code xong, cần phải đánh giá trên metrics, rồi so sánh với baseline đang chạy, ổn thì deploy
 
 ---
 
