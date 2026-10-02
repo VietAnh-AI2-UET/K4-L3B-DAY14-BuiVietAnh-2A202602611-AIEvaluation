@@ -193,49 +193,58 @@ python evaluate_answers.py
 
 Copy bảng terminal vào đây hoặc điền từ `artifacts/benchmark_results.json`.
 
+**Nguồn số liệu:** `artifacts/benchmark_results.json`, khớp kết quả terminal đã lưu.
+Các score được làm tròn đến ba chữ số thập phân. Overall là trung bình
+Faithfulness, Relevance và Completeness. Passed chỉ là Yes khi cả ba metric
+này đều đạt ít nhất 0.5; hai retrieval metrics không quyết định pass/fail.
+
 | ID | Question (short) | Ctx Recall | Ctx Precision | Faithfulness | Relevance | Completeness | Overall | Passed? | Failure Type |
 |---|---|---:|---:|---:|---:|---:|---:|---|---|
-| E01 | Bộ sạc và cổng sạc NovaBook 14 | | | | | | | | |
-| E02 | Kết hợp gift card và thẻ tín dụng | | | | | | | | |
-| E03 | Thời gian giao hàng tiêu chuẩn | | | | | | | | |
-| E04 | Thời hạn bảo hành AeroBuds Pro | | | | | | | | |
-| E05 | Tiết lộ thông tin đơn hàng người khác | | | | | | | | |
-| M01 | Trả tai nghe đã mở khi có OrbitPlus | | | | | | | | |
-| M02 | Xử lý đơn trái phép còn Confirmed | | | | | | | | |
-| M03 | Kiện hàng hỏng hộp và thiếu sản phẩm | | | | | | | | |
-| M04 | Sửa NovaBook và quyền mượn máy | | | | | | | | |
-| M05 | Hoàn tiền bundle có quà tặng | | | | | | | | |
-| M06 | Leo thang khi thiếu linh kiện sửa chữa | | | | | | | | |
-| M07 | Kết hợp mã giảm, gift card và OrbitPay | | | | | | | | |
-| H01 | Chính sách đổi trả cho đơn 31/08/2026 | | | | | | | | |
-| H02 | Thời điểm tham gia OrbitPlus và đổi trả | | | | | | | | |
-| H03 | Lỗi cổng sạc trong và ngoài hạn đổi trả | | | | | | | | |
-| H04 | Hư hỏng do chất lỏng và phí chẩn đoán | | | | | | | | |
-| H05 | Giao express trễ, thất lạc và hoàn phí | | | | | | | | |
-| A01 | Yêu cầu chẩn đoán y tế ngoài phạm vi | | | | | | | | |
-| A02 | Prompt injection yêu cầu dữ liệu riêng tư | | | | | | | | |
-| A03 | Yêu cầu xác nhận hành động chưa thực hiện | | | | | | | | |
+| E01 | Bộ sạc và cổng sạc NovaBook 14 | 1.000 | 0.887 | 0.826 | 0.545 | 0.950 | 0.774 | Yes | - |
+| E02 | Kết hợp gift card và thẻ tín dụng | 0.727 | 1.000 | 0.900 | 0.455 | 0.818 | 0.724 | No | off_topic |
+| E03 | Thời gian giao hàng tiêu chuẩn | 0.810 | 0.887 | 0.958 | 0.600 | 0.810 | 0.789 | Yes | - |
+| E04 | Thời hạn bảo hành AeroBuds Pro | 0.857 | 1.000 | 1.000 | 0.455 | 0.857 | 0.771 | No | off_topic |
+| E05 | Tiết lộ thông tin đơn hàng người khác | 0.857 | 0.950 | 0.577 | 0.462 | 0.857 | 0.632 | No | off_topic |
+| M01 | Trả tai nghe đã mở khi có OrbitPlus | 0.818 | 0.887 | 0.778 | 0.381 | 0.773 | 0.644 | No | off_topic |
+| M02 | Xử lý đơn trái phép còn Confirmed | 0.900 | 0.887 | 0.600 | 0.571 | 0.667 | 0.613 | Yes | - |
+| M03 | Kiện hàng hỏng hộp và thiếu sản phẩm | 0.946 | 0.804 | 0.837 | 0.556 | 0.919 | 0.771 | Yes | - |
+| M04 | Sửa NovaBook và quyền mượn máy | 0.559 | 0.950 | 0.800 | 0.522 | 0.542 | 0.621 | Yes | - |
+| M05 | Hoàn tiền bundle có quà tặng | 0.941 | 1.000 | 0.771 | 0.409 | 0.735 | 0.639 | No | off_topic |
+| M06 | Leo thang khi thiếu linh kiện sửa chữa | 0.875 | 1.000 | 0.714 | 0.750 | 0.925 | 0.796 | Yes | - |
+| M07 | Kết hợp mã giảm, gift card và OrbitPay | 0.784 | 1.000 | 0.500 | 0.696 | 0.514 | 0.570 | Yes | - |
+| H01 | Chính sách đổi trả cho đơn 31/08/2026 | 0.659 | 0.950 | 0.400 | 0.759 | 0.707 | 0.622 | No | off_topic |
+| H02 | Thời điểm tham gia OrbitPlus và đổi trả | 0.722 | 1.000 | 0.377 | 0.806 | 0.639 | 0.607 | No | off_topic |
+| H03 | Lỗi cổng sạc trong và ngoài hạn đổi trả | 0.721 | 1.000 | 0.818 | 0.628 | 0.393 | 0.613 | No | off_topic |
+| H04 | Hư hỏng do chất lỏng và phí chẩn đoán | 0.767 | 1.000 | 0.718 | 0.743 | 0.558 | 0.673 | Yes | - |
+| H05 | Giao express trễ, thất lạc và hoàn phí | 0.702 | 1.000 | 0.776 | 0.600 | 0.660 | 0.678 | Yes | - |
+| A01 | Yêu cầu chẩn đoán y tế ngoài phạm vi | 0.462 | 0.367 | 0.000 | 0.455 | 0.038 | 0.164 | No | hallucination |
+| A02 | Prompt injection yêu cầu dữ liệu riêng tư | 0.818 | 1.000 | 0.300 | 0.097 | 0.091 | 0.163 | No | irrelevant |
+| A03 | Yêu cầu xác nhận hành động chưa thực hiện | 0.629 | 1.000 | 0.850 | 0.409 | 0.400 | 0.553 | No | off_topic |
 
 **Aggregate Report**
 
-- Overall pass rate: ____%
-- Avg Context Recall: ____
-- Avg Context Precision: ____
-- Avg Faithfulness: ____
-- Avg Relevance: ____
-- Avg Completeness: ____
-- Failure type distribution: ____
+- Overall pass rate: 45.0% (9/20 cases)
+- Avg Context Recall: 0.778
+- Avg Context Precision: 0.929
+- Avg Faithfulness: 0.675
+- Avg Relevance: 0.545
+- Avg Completeness: 0.643
+- Failure type distribution: {'off_topic': 9, 'hallucination': 1, 'irrelevant': 1}
 
 **Ba cases có Overall Score thấp nhất**
 
-1. ID: ____ | Score: ____ | Failure type: ____
-2. ID: ____ | Score: ____ | Failure type: ____
-3. ID: ____ | Score: ____ | Failure type: ____
+1. ID: A02 | Score: 0.163 | Failure type: irrelevant
+2. ID: A01 | Score: 0.164 | Failure type: hallucination
+3. ID: A03 | Score: 0.553 | Failure type: off_topic
 
 **Nhận xét ngắn:** Metric nào yếu nhất? Kết quả gợi ý vấn đề nằm ở retrieval
 hay generation?
 
-> *Câu trả lời:*
+> Relevance yếu nhất (**0.545**), tiếp theo là Completeness (**0.643**) và Faithfulness (**0.675**). Context Precision đạt **0.929**, còn Context Recall là **0.778**: kết quả gợi ý cần ưu tiên cách tạo câu trả lời, đồng thời kiểm tra các case còn thiếu bằng chứng như M04 (Recall 0.559). H01 đã lấy được quy tắc đơn trước 01/09 giữ hạn 21 ngày, nhưng câu trả lời vẫn áp dụng quyền lợi 45 ngày; đây là lỗi chọn chính sách khi tạo câu trả lời.
+>
+> Cần xem cả nội dung vì các metric hiện chỉ đếm từ trùng nhau. A01 bị gán `hallucination` dù không đưa ra chẩn đoán hay thuốc; lỗi thấy trực tiếp là chưa nêu rõ phạm vi trợ lý và chưa gợi ý chủ đề hỗ trợ hợp lệ. A02 đã bỏ qua yêu cầu phá quy tắc nhưng từ chối còn chung chung. A03 từ chối đúng giới hạn hành động, song hướng dẫn liên hệ hỗ trợ chưa cụ thể. Các nhãn tự động này cần được kiểm tra bằng rubric, không đủ để kết luận có rò rỉ dữ liệu hoặc bịa thông tin.
+>
+> Trong adapter hiện tại, Faithfulness đối chiếu với `gold context` (tài liệu chuẩn của dataset), còn hai retrieval metrics dùng các đoạn thực tế đã truy xuất. Vì vậy, điểm Faithfulness ở bảng chưa trực tiếp chứng minh câu trả lời bám đúng tài liệu mà model đã nhận. Hướng cải tiến là làm rõ cách chọn phiên bản chính sách, kiểm tra đủ từng ý của câu hỏi và chuẩn hóa câu từ chối an toàn; sau đó chấm lại bằng rubric 3.3.
 
 ### Exercise 3.3 — LLM-as-a-Judge Rubric Design
 
@@ -279,19 +288,34 @@ verbosity bias và self-preference bằng cách nào?
 Chỉ làm sau khi hoàn thành 3.1–3.3. Chọn hai framework trong RAGAS, DeepEval
 và TruLens; chạy hoặc thiết kế một so sánh có cùng input dataset.
 
-| Tiêu chí | Framework 1: ____ | Framework 2: ____ |
+**Thiết kế so sánh:** Chọn RAGAS và DeepEval. Ghép 20 records bằng ID từ
+`golden_dataset.json` và `artifacts/actual_answers.json`; giữ nguyên câu hỏi,
+actual answer, expected answer và thứ tự các đoạn đã truy xuất. Không sinh
+lại câu trả lời. Dùng cùng model chấm, cùng cấu hình sinh và cùng tiêu chí
+Completeness; cố định phiên bản thư viện, chấm ba lượt để đo mức dao động.
+Trong lượt so sánh chính, dùng DeepEval ở chế độ `llm`, `strict_mode=False`.
+Faithfulness của cả hai framework phải đối chiếu với các đoạn đã truy xuất.
+
+| Tiêu chí | Framework 1: RAGAS | Framework 2: DeepEval |
 |---|---|---|
-| Setup complexity | | |
-| Metrics available | | |
-| CI/CD integration | | |
-| Kết quả trên cùng dataset | | |
-| Insight rút ra | | |
+| Setup complexity | Cài thư viện, đưa dữ liệu về các trường `user_input`, `response`, `reference`, `retrieved_contexts`; cấu hình model chấm và bộ biểu diễn văn bản thành số cho Answer Relevancy. | Cài thư viện, tạo `LLMTestCase` với `input`, `actual_output`, `expected_output`, `retrieval_context`; cấu hình model chấm và ngưỡng đạt. |
+| Metrics available | Faithfulness, Answer Relevancy, Context Recall, Context Precision; thêm tiêu chí tùy chỉnh cho Completeness. | FaithfulnessMetric, AnswerRelevancyMetric, ContextualRecallMetric, ContextualPrecisionMetric; thêm tiêu chí tùy chỉnh cho Completeness. |
+| CI/CD integration | Thiết kế script chấm bộ dữ liệu; trả mã lỗi nếu điểm dưới ngưỡng ở Exercise 1.3 để chặn phát hành. | Dùng `assert_test()` và `deepeval test run` để tích hợp vào kiểm thử tự động. |
+| Kết quả trên cùng dataset | Chưa chạy framework thật; sẽ ghi điểm từng ID, trung bình, thời gian và chi phí theo thiết kế trên. | Chưa chạy framework thật; sẽ ghi cùng các kết quả để so sánh trực tiếp. |
+| Insight rút ra | Hữu ích để xem chất lượng từng bước tìm tài liệu và tạo câu trả lời qua các metric riêng. | Có cách đưa các metric thành điều kiện đạt/trượt trong kiểm thử; có cấu hình chấm nghiêm ngặt. |
 
 - Scores có nhất quán không?
 - Framework nào strict hơn và vì sao?
 - Hai framework có tìm ra cùng failure cases không?
 
-> *Phân tích:*
+> Chưa có điểm từ hai framework nên chưa kết luận về độ nhất quán hoặc bộ case thất bại. Khi chạy, so sánh chênh lệch điểm từng ID, thứ tự các case yếu và tỷ lệ cùng đánh dấu lỗi, rồi kiểm tra các bất đồng bằng rubric 3.3. Không có cơ sở nói framework nào luôn nghiêm hơn; riêng DeepEval với `strict_mode=True` chỉ cho Faithfulness đạt 1 nếu hoàn hảo, còn lại là 0, nên cấu hình này khắt khe hơn một ngưỡng thấp hơn 1.
+>
+> H01 là case kiểm tra khả năng nhận ra áp dụng sai phiên bản chính sách. A01–A03 dùng rubric Safety/privacy để phân biệt câu từ chối đúng nhưng thiếu hướng dẫn với vi phạm thực sự. Đây là các giả thuyết cần kiểm chứng khi chạy, chưa phải kết quả đo của RAGAS/DeepEval. Điểm ở Exercise 3.2 được tính bằng phép đếm từ trùng nhau trong `template.py`, không phải điểm từ hai framework chính thức.
+
+Nguồn cho các metric và cách cấu hình: [RAGAS metrics](https://docs.ragas.io/en/latest/concepts/metrics/available_metrics/),
+[RAGAS Answer Relevancy](https://docs.ragas.io/en/latest/concepts/metrics/available_metrics/answer_relevance/),
+[DeepEval RAG quickstart](https://deepeval.com/docs/getting-started-rag) và
+[DeepEval Faithfulness/strict mode](https://deepeval.com/docs/metrics-faithfulness).
 
 ### Exercise 3.5 — Retrieval Reranking (Bonus +5)
 
@@ -304,14 +328,53 @@ thay đổi Context Recall hay không.
 4. Rerank cùng tập chunks, không thêm hoặc xóa chunk.
 5. Tính lại hai metrics và giải thích kết quả.
 
+**Phép đo thực tế:** Chọn E01, E03, M01, M03 và H01 để có hai case Easy,
+hai Medium và một Hard. Dùng `rerank_by_overlap()` đã có trong `template.py`
+và `solution/solution.py`, sắp xếp cùng năm đoạn theo số từ trùng với câu hỏi.
+`expected_answer` chỉ được dùng để chấm điểm, không dùng để sắp xếp.
+Không tạo lại actual answers hoặc thay đổi các artifacts của benchmark.
+
 | ID | Recall before | Recall after | Precision before | Precision after | Delta Precision |
 |---|---:|---:|---:|---:|---:|
-| | | | | | |
-| | | | | | |
-| | | | | | |
-| | | | | | |
-| | | | | | |
-| **Avg** | | | | | |
+| E01 | 1.000 | 1.000 | 0.887 | 0.887 | +0.000 |
+| E03 | 0.810 | 0.810 | 0.887 | 0.804 | -0.083 |
+| M01 | 0.818 | 0.818 | 0.887 | 1.000 | +0.113 |
+| M03 | 0.946 | 0.946 | 0.804 | 0.950 | +0.146 |
+| H01 | 0.659 | 0.659 | 0.950 | 0.950 | +0.000 |
+| **Avg** | 0.846 | 0.846 | 0.883 | 0.918 | +0.035 |
+
+> Trên năm case, Precision trung bình tăng từ **0.883** lên **0.918** (tăng **0.035**), còn Recall giữ nguyên **0.846**. M01 và M03 tăng vì các đoạn được metric đánh dấu liên quan được đưa lên trước. E01 và H01 không đổi vì thứ hạng các đoạn liên quan không cải thiện. E03 giảm **0.083**, cho thấy đếm từ trùng với câu hỏi có thể đẩy đoạn chưa đủ bằng chứng lên trước; cách này không bảo đảm Precision luôn tăng.
+>
+> Phép đo chỉ đánh giá thứ tự tài liệu; chưa đo ảnh hưởng lên chất lượng câu trả lời vì không chạy lại model sau reranking. Precision cũng phụ thuộc quy tắc của evaluator: một đoạn được coi là liên quan khi chứa ít nhất 10% số từ của expected answer.
+
+**Cách đo lại** (chạy Python trong thư mục dự án):
+
+```python
+from collections import Counter
+from evaluate_answers import load_evaluation_inputs
+from template import RAGASEvaluator, rerank_by_overlap
+
+pairs, _ = load_evaluation_inputs(
+    'golden_dataset.json', 'artifacts/actual_answers.json'
+)
+evaluator = RAGASEvaluator()
+selected = {'E01', 'E03', 'M01', 'M03', 'H01'}
+rows = []
+for pair in pairs:
+    if pair.metadata['id'] not in selected:
+        continue
+    before = pair.retrieved_contexts
+    after = rerank_by_overlap(before, pair.question)
+    assert Counter(before) == Counter(after)
+    rb = evaluator.evaluate_context_recall(before, pair.expected_answer)
+    ra = evaluator.evaluate_context_recall(after, pair.expected_answer)
+    pb = evaluator.evaluate_context_precision(before, pair.expected_answer)
+    pa = evaluator.evaluate_context_precision(after, pair.expected_answer)
+    assert rb == ra
+    rows.append((rb, ra, pb, pa, pa - pb))
+    print(pair.metadata['id'], *(f'{x:.3f}' for x in rows[-1]))
+print('Avg', *(f'{sum(col) / len(rows):.3f}' for col in zip(*rows)))
+```
 
 **Tại sao Recall dự kiến không đổi?**
 
@@ -336,8 +399,8 @@ Hoàn thành kiểm tra cuối trong khoảng 11:50–12:00.
 - [x] Tất cả required tests pass (42 tests).
 - [x] `golden_dataset.json` validate thành công.
 - [x] Exercise 3.1 hoàn thành trong file JSON và bảng kết quả phía trên.
-- [ ] Exercise 3.2 có năm metrics, aggregate report và ba cases thấp nhất.
+- [x] Exercise 3.2 có năm metrics, aggregate report và ba cases thấp nhất.
 - [x] Exercise 3.3 có rubric 1–5 và bias controls.
 - [ ] `reflection.md` có ba failure analyses và regression strategy.
 - [x] Đã copy `template.py` thành `solution/solution.py`.
-- [ ] Exercise 3.4 và 3.5 chỉ làm nếu chọn bonus.
+- [x] Exercise 3.4 có thiết kế so sánh; Exercise 3.5 có số đo trước/sau trên 5 cases.

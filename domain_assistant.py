@@ -21,7 +21,11 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from dotenv import load_dotenv
-from openai import OpenAI, OpenAIError
+from google import genai
+from google.genai import errors, types
+from httpx import HTTPError
+
+from gemini_rate_limit import GeminiRateLimiter
 
 load_dotenv(Path(__file__).resolve().with_name(".env"))
 
@@ -242,27 +246,41 @@ class TextGenerator(Protocol):
     def generate(self, prompt: str) -> str: ...
 
 
-class OpenAIGenerator:
-    def __init__(self, max_output_tokens: int = 300) -> None:
-        api_key = os.getenv("OPENAI_API_KEY", "").strip()
-        self.model = os.getenv("OPENAI_MODEL", "").strip()
+class GeminiGenerator:
+    def __init__(self, max_output_tokens: int = 1024) -> None:
+        api_key = (
+            os.getenv("GOOGLE_API_KEY", "").strip()
+            or os.getenv("GEMINI_API_KEY", "").strip()
+        )
+        self.model = os.getenv("GEMINI_MODEL", "").strip() or "gemini-3.5-flash-lite"
         if not api_key:
-            raise RuntimeError("OPENAI_API_KEY is missing from .env")
-        if not self.model:
-            raise RuntimeError("OPENAI_MODEL is missing from .env")
-        self.client = OpenAI(api_key=api_key)
+            raise RuntimeError("GOOGLE_API_KEY (or GEMINI_API_KEY) is missing from .env")
+        self.rate_limiter = GeminiRateLimiter(self.model)
+        # Each API attempt must pass through our request budget.
+        self.client = genai.Client(
+            api_key=api_key,
+            http_options=types.HttpOptions(
+                retry_options=types.HttpRetryOptions(attempts=1)
+            ),
+        )
         self.max_output_tokens = max_output_tokens
 
     def generate(self, prompt: str) -> str:
-        response = self.client.responses.create(
+        self.rate_limiter.wait_for_slot()
+        response = self.client.models.generate_content(
             model=self.model,
-            input=prompt,
-            temperature=0,
-            max_output_tokens=self.max_output_tokens,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                temperature=1,
+                max_output_tokens=self.max_output_tokens,
+            ),
         )
-        answer = response.output_text.strip()
+        answer = (response.text or "").strip()
         if not answer:
-            raise RuntimeError("OpenAI returned an empty answer")
+            raise RuntimeError(
+                "Gemini returned an empty answer; check safety restrictions "
+                "or increase max_output_tokens if the model uses thinking"
+            )
         return answer
 
 
@@ -299,7 +317,7 @@ class DomainAssistant:
         return cls(
             corpus_id,
             BM25Retriever(chunks),
-            generator if generator is not None else OpenAIGenerator(),
+            generator if generator is not None else GeminiGenerator(),
             top_k,
         )
 
@@ -396,6 +414,16 @@ def generate_actual_answers(
         raise ValueError(
             f"Dataset corpus_id {dataset_corpus_id!r} does not match "
             f"assistant corpus_id {assistant.corpus_id!r}"
+        )
+
+    if isinstance(assistant.generator, GeminiGenerator):
+        limiter = assistant.generator.rate_limiter
+        limiter.progress = progress
+        remaining = limiter.ensure_capacity(len(questions))
+        notify(
+            f"Gemini limits: {limiter.rpm} RPM, {limiter.rpd} RPD; "
+            f"minimum request interval={limiter.min_interval:.1f}s, "
+            f"daily budget remaining={remaining}."
         )
 
     model = getattr(assistant.generator, "model", assistant.generator.__class__.__name__)
@@ -508,7 +536,7 @@ def main() -> int:
             json.dumps(artifact, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
         )
-    except (OSError, OpenAIError, TypeError, ValueError, RuntimeError) as exc:
+    except (OSError, errors.APIError, HTTPError, TypeError, ValueError, RuntimeError) as exc:
         print(f"ERROR: {exc}")
         return 2
     print(f"Generated {len(artifact['answers'])} actual answers: {output}")

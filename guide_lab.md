@@ -13,7 +13,7 @@ khi golden dataset validate thành công.
 `domain_assistant.py` là RAG assistant cho OrbitTech Store Customer Support:
 
 ```text
-question → BM25 retrieval → retrieved chunks → OpenAI model → actual answer
+question → BM25 retrieval → retrieved chunks → Gemini model → actual answer
 ```
 
 Đây là thành phần **sinh câu trả lời thật**.
@@ -121,7 +121,7 @@ python -m pip install -r requirements.txt
 Kiểm tra import:
 
 ```bash
-python -c "import openai, dotenv, pytest; print('Environment OK')"
+python -c "from google import genai; import dotenv, pytest; print('Environment OK')"
 ```
 
 ---
@@ -552,7 +552,7 @@ sinh actual answers và làm Exercise 3.2.
 
 ---
 
-## 7. Cấu hình OpenAI API
+## 7. Cấu hình Gemini API
 
 Chỉ `domain_assistant.py` cần API key.
 
@@ -571,9 +571,28 @@ Copy-Item .env.example .env
 Mở `.env` và điền:
 
 ```dotenv
-OPENAI_API_KEY=<API_KEY_CUA_BAN>
-OPENAI_MODEL=gpt-4o-mini
+GOOGLE_API_KEY=<API_KEY_CUA_BAN>
+GEMINI_MODEL=gemini-3.5-flash-lite
+GEMINI_RPM=15
+GEMINI_RPD=500
 ```
+
+Tạo key tại [Google AI Studio](https://aistudio.google.com/apikey).
+Code dùng SDK chính thức `google-genai`. `GEMINI_MODEL` có thể đổi sang model
+Gemini khác mà tài khoản của bạn hỗ trợ; nếu trống, code dùng `gemini-3.5-flash-lite`.
+Cũng có thể đặt `GEMINI_API_KEY` thay cho `GOOGLE_API_KEY`; nếu cả hai có giá trị,
+code ưu tiên `GOOGLE_API_KEY`. Chỉ lưu key thật trong `.env`, không trong `.env.example`.
+
+Với `GEMINI_RPM=15`, mỗi lần gửi cách nhau ít nhất 5 giây để chừa khoảng đệm;
+20 câu hỏi cần ít nhất khoảng 95 giây giữa lần gửi đầu và cuối. Code lưu số lượt
+gửi theo model trong `.gemini_usage.sqlite3` (đã được bỏ qua bởi Git), dùng chung
+cho các lần chạy trong cùng thư mục dự án. Nếu số lượt còn lại trong ngày không
+đủ cho cả dataset, chương trình dừng trước khi gửi. Request lỗi vẫn được tính
+vào bộ đếm và SDK không tự gửi lại.
+
+Quota ngày đặt lại lúc 0 giờ Pacific theo [Google](https://ai.google.dev/gemini-api/docs/rate-limits).
+Bộ đếm cục bộ không biết các request từ ứng dụng khác cùng Google project;
+giới hạn token/phút vẫn được Google kiểm tra riêng.
 
 `.env` đã nằm trong `.gitignore`. Không paste key vào source code, notebook,
 artifact, terminal screenshot hoặc commit.
@@ -801,10 +820,15 @@ environment đã được activate.
 |---|---|---|
 | Không nhận lệnh `python`, `python3` hoặc `py` | Python chưa được cài hoặc launcher chưa nằm trong `PATH` | Cài Python 3.11+ rồi dùng lệnh tương ứng với hệ điều hành ở Mục 2 |
 | `ImportError: cannot import name UTC from datetime` | Venv được tạo bằng Python 3.9/3.10 | Xóa/tạo lại venv bằng Python 3.11+; kiểm tra version trước khi cài requirements |
-| `ModuleNotFoundError: openai` hoặc `dotenv` | Chưa activate venv hoặc chưa cài requirements | Activate `.venv`, rồi chạy `python -m pip install -r requirements.txt` |
+| `ModuleNotFoundError: google.genai` hoặc `dotenv` | Chưa activate venv hoặc chưa cài requirements | Activate `.venv`, rồi chạy `python -m pip install -r requirements.txt` |
 | Validator liệt kê nhiều field rỗng | `golden_dataset.json` vẫn là form starter | Điền đủ 20 records; đây là lỗi mong đợi trước Exercise 3.1 |
 | `text is not a verbatim substring` | Evidence đã bị sửa wording/punctuation | Copy lại nguyên văn đoạn ngắn từ đúng `source_doc` |
-| `OPENAI_API_KEY is missing from .env` | Thiếu `.env`, key còn placeholder, hoặc chạy sai directory | Copy `.env.example` thành `.env`, điền key thật và chạy từ repo root |
+| `GOOGLE_API_KEY (or GEMINI_API_KEY) is missing from .env` | Thiếu API key trong `.env` và biến môi trường | Copy `.env.example` thành `.env`, điền Gemini key thật và chạy từ repo root |
+| Gemini báo `400`, `401` hoặc `403` | Key không hợp lệ hoặc chưa có quyền gọi API | Kiểm tra key và project trong Google AI Studio |
+| Gemini báo `404` | Tài khoản không hỗ trợ model đã chọn | Kiểm tra `GEMINI_MODEL` và chọn model có trong tài khoản |
+| Gemini báo `429` | Vượt giới hạn gọi API hoặc hết quota | Kiểm tra quota trong Google AI Studio và thử lại sau |
+| `Gemini daily request budget` | Không còn đủ lượt cho cả dataset hoặc đã dùng hết giới hạn ngày | Chờ đến ngày quota mới theo giờ Pacific; không xóa bộ đếm để tiếp tục gửi |
+| `Gemini returned an empty answer` | Phản hồi bị chặn hoặc hết giới hạn token | Kiểm tra nội dung câu hỏi và tăng `max_output_tokens` trong `GeminiGenerator` nếu cần |
 | `Dataset corpus_id ... does not match assistant corpus_id` | Đã sửa nhầm `corpus_id` | Khôi phục `orbittech-customer-support-v1` |
 | `question differs between artifacts` | Golden dataset đã đổi sau lần sinh answers | Validate rồi chạy lại `python domain_assistant.py` để tạo artifact mới |
 | `Complete the required TODOs in template.py first` | Core còn `NotImplementedError` | Quay lại checkpoint test tương ứng ở Mục 4.9 |

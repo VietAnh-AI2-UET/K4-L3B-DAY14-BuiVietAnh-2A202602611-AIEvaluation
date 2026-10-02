@@ -36,17 +36,43 @@ Hạn nộp mặc định: **23h59 ngày lab (GMT+7)**; coach có thể gia hạ
 
 ## Yêu cầu & Quick Start
 
-**Yêu cầu:** Python 3.11 trở lên. Cần **OpenAI API key** để chạy `domain_assistant.py` (Part 3 — sinh 20 actual answers từ RAG thật); phần code core (`template.py`, Part 1–2) không cần API key.
+**Yêu cầu:** Python 3.11 trở lên. Cần **Gemini API key** để chạy `domain_assistant.py` (Part 3 — sinh 20 actual answers từ RAG thật); phần code core (`template.py`, Part 1–2) không cần API key.
 
 ```bash
 python --version                                        # xác nhận Python 3.11+
 python -m venv .venv && source .venv/bin/activate       # Windows: .venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
 pytest tests/ -v                                         # baseline: 42 tests collected, 42 failed
-cp .env.example .env                                     # điền OPENAI_API_KEY (chỉ cần cho Part 3)
+cp .env.example .env                                     # điền GOOGLE_API_KEY (chỉ cần cho Part 3)
 ```
 
 Chi tiết hướng dẫn theo hệ điều hành và xử lý lỗi: xem [`guide_lab.md`](guide_lab.md).
+
+Tạo API key tại [Google AI Studio](https://aistudio.google.com/apikey), rồi cấu hình `.env`:
+
+```dotenv
+GOOGLE_API_KEY=your-google-api-key
+GEMINI_MODEL=gemini-3.5-flash-lite
+GEMINI_RPM=15
+GEMINI_RPD=500
+```
+
+Code dùng thư viện chính thức [`google-genai`](https://googleapis.github.io/python-genai/).
+Nếu `GEMINI_MODEL` trống, mặc định là `gemini-3.5-flash-lite`.
+Có thể dùng `GEMINI_API_KEY` thay cho `GOOGLE_API_KEY`; nếu cả hai được đặt,
+`GOOGLE_API_KEY` được ưu tiên. `.env.example` chỉ chứa cấu hình mẫu, không điền key thật vào file này.
+
+Với giới hạn 15 request/phút, code giãn các lần gửi ít nhất **5 giây**
+(khoảng 12 request/phút). 20 câu hỏi cần ít nhất khoảng **95 giây** giữa lần gửi đầu
+và lần gửi cuối, chưa tính thời gian nhận câu trả lời cuối. Bộ đếm ngày được lưu
+trong `.gemini_usage.sqlite3` để các lần chạy lại cùng dự án dùng chung giới hạn
+500 request/ngày. Code kiểm tra đủ lượt cho cả dataset trước khi bắt đầu và tính
+cả request bị lỗi; thư viện không tự gửi lại request.
+
+Theo [tài liệu Google](https://ai.google.dev/gemini-api/docs/rate-limits), giới hạn
+ngày đặt lại lúc 0 giờ theo giờ Pacific và quota dùng chung cho cả Google project.
+Bộ đếm này chỉ theo dõi request từ bản sao dự án hiện tại; request từ ứng dụng khác
+cùng Google project và giới hạn token/phút vẫn có thể gây lỗi `429`.
 
 ---
 
